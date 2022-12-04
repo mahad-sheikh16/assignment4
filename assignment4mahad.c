@@ -10,7 +10,9 @@ FILE *fptr2;
 void menu(void);
 void add(void);
 void update(void);
-/////////////
+void del(void);
+void search();
+void display(void);
 
 typedef struct patient_record
 {
@@ -63,7 +65,9 @@ void menu(void)
 
 		printf("\n\n\t1 ->  ADD       Patient Record.\n");
 		printf("\t2 ->  UPDATE    Patient Record.\n");
-		/////////
+		printf("\t3 ->  DELETE    Patient Record.\n");
+		printf("\t4 ->  SEARCH    Patient Record.\n");
+		printf("\t5 ->  DISPLAY   Patient's Records.\n");
 		printf("\t0 ->  EXIT.\n");
 		printf("\n   Enter Choice (0-5) : ");
 		scanf("%d", &choice);
@@ -87,8 +91,24 @@ void menu(void)
 			update();
             
 			break;
-
-		/////
+		case 3:
+			system("cls");
+            
+   system("COLOR 74");
+			del();
+			break;
+		case 4:
+			system("cls");
+            
+   system("COLOR 75");
+			search();
+			break;
+		case 5:
+			system("cls");
+            
+   system("COLOR 73");
+			display();
+			break;
 		default:
            
 			printf("Invalid input,Enter again");
@@ -215,6 +235,7 @@ void update(void)
 		{
 			printf("Repeated Entry Found  !! \n\n");
 			_sleep(700);
+			//system("COLOR 70");
 			flag = 1;
 			break;
 		}
@@ -280,4 +301,165 @@ void update(void)
 	}
 }
 
-///////
+void del(void)
+{
+
+	printf("\t\t-------DELETE PAITIENT RECORD--------\n\n");
+	printf("Note: Enter -1 in ID to return to menu without deleting patient record\n");
+
+	fptr = fopen("file1.txt", "r");
+	fseek(fptr, 0, SEEK_END);
+	char sid[5];
+	printf("\nEnter ID: ");
+	fflush(stdin);
+	gets(p.id);
+	fflush(stdin);
+	if (strcmp(p.id, "-1") == 0)
+	{
+		_sleep(700);
+		system("cls");
+		menu();
+	}
+
+	int flag = 0;
+	int loc;
+	while (ftell(fptr) > 96)
+	{
+		fseek(fptr, -97, SEEK_CUR);
+		fscanf(fptr, "%s", sid);
+		fseek(fptr, -strlen(sid) - 2, SEEK_CUR);
+
+		if (strcmp(p.id, sid) == 0)
+		{
+
+			flag = 1;
+			loc = ftell(fptr);
+			rewind(fptr);
+			break;
+		}
+	}
+
+	if (flag == 0)
+	{
+		printf("No Such Record Found!\n");
+		_sleep(700);
+		system("cls");
+		fclose(fptr);
+		menu();
+	}
+
+	else
+	{
+
+		fptr2 = fopen("Newfile.txt", "w+");
+		char cpy = fgetc(fptr);
+		while (cpy != EOF)
+		{
+
+			if (ftell(fptr) == loc)
+			{
+				fseek(fptr, +97, SEEK_CUR);
+				//system("COLOR 04");
+				printf("Repeated Entry Found. Deleted .\n");
+			}
+			fputc(cpy, fptr2);
+			cpy = fgetc(fptr);
+		}
+	}
+
+	rewind(fptr2);
+	fclose(fptr);
+
+	fptr = fopen("file1.txt", "w");
+	char cpy = fgetc(fptr2);
+	while (cpy != EOF)
+	{
+
+		fputc(cpy, fptr);
+		cpy = fgetc(fptr2);
+	}
+
+	fclose(fptr);
+	fclose(fptr2);
+	remove("Newfile.txt");
+	_sleep(700);
+	system("cls");
+	menu();
+ }void search(void)
+{
+	printf("\t\t-------SEARCH PAITIENT--------\n\n");
+	printf("Note: Enter -1 in ID to return to menu without Searching patient\n");
+
+	fptr = fopen("file1.txt", "r");
+	fseek(fptr, 0, SEEK_END);
+	char sid[5];
+	printf("\nEnter   ID   : ");
+	fflush(stdin);
+	gets(p.id);
+	if (strcmp(p.id, "-1") == 0)
+	{
+		_sleep(700);
+		system("cls");
+		menu();
+	}
+
+	int flag = 0;
+while (ftell(fptr) > 195)
+	{
+		fseek(fptr, -97, SEEK_CUR);
+		fscanf(fptr, "%s", sid);
+		fseek(fptr, strlen(sid) - 2, SEEK_CUR);
+
+		if (strcmp(p.id, sid) == 0)
+		{
+			printf("Your searched patient.s record is Found .\n");
+			flag = 1;
+			break;
+		}
+	}
+	if (flag == 0)
+	{
+		printf("Your searched Record is not Found\n\n");
+		_sleep(700);
+		system("cls");
+		fclose(fptr);
+		menu();
+	}
+	else
+	{
+
+		int print = 0;
+		char cpy = fgetc(fptr);
+		printf("ID        Name                     CNIC           Phone Number   Disease                  Status\n");
+		while (print < 96)
+		{
+
+			printf("%c", cpy);
+			cpy = fgetc(fptr);
+			print++;
+		}
+
+		printf("\n\nEnter any key to Return back to MENU.\n");
+		getch();
+		fclose(fptr);
+		system("cls");
+		menu();
+	}
+}
+void display(void)
+{   printf("\n\n");
+ 	fptr = fopen("file1.txt", "r");
+	rewind(fptr);
+	char cpy = fgetc(fptr);
+	while (cpy != EOF)
+	{
+
+		printf("%c", cpy);
+		cpy = fgetc(fptr);
+	}
+	printf("\n\nEnter any key to Return back to MENU.\n");
+	getch();
+	system("cls");
+	//system("COLOR 07");
+	menu();
+}
